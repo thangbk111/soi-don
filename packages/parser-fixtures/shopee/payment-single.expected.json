@@ -1,0 +1,30 @@
+{
+  "parser": "shopee.payment_confirmed.v1",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.payment_confirmed.v1",
+      "eventType": "ORDER_PLACED",
+      "occurredAt": "2026-10-10T03:57:12.000Z",
+      "orderId": "2610108TXR8YDR",
+      "orderDate": "2026-10-10T03:57:07.000Z",
+      "shopName": "shopthucphamsach.mero",
+      "items": [
+        {
+          "name": "Hạt điều rang củi (vị muối) Mẹ rô. Có hồ sơ công bố, xuất hóa đơn công ty đầy đủ",
+          "quantity": 1,
+          "unitPrice": 105000,
+          "lineTotal": 105000,
+          "variant": "450-510HẠT/KG(VỪA),250GR ZIP KHÔNG HỘP"
+        }
+      ],
+      "grossAmount": 105000,
+      "discountAmount": 21000,
+      "listedDiscountAmount": 21000,
+      "shippingFee": 0,
+      "netAmount": 84000,
+      "confidence": 1,
+      "warnings": []
+    }
+  ]
+}

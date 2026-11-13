@@ -1,0 +1,31 @@
+{
+  "parser": "shopee.order_delivered.v1",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.order_delivered.v1",
+      "eventType": "ORDER_DELIVERED",
+      "occurredAt": "2026-10-19T17:00:00.000Z",
+      "orderId": "2610204Q35AU8D",
+      "orderDate": "2026-10-20T02:24:02.000Z",
+      "shopName": "concung_official",
+      "items": [
+        {
+          "name": "1 thùng Abbott Grow Gold hương vani 110ML - Lốc 4 (new)",
+          "quantity": 1,
+          "unitPrice": 729600,
+          "lineTotal": 729600
+        }
+      ],
+      "grossAmount": 729600,
+      "discountAmount": 249000,
+      "listedDiscountAmount": 182400,
+      "shippingFee": 0,
+      "netAmount": 480600,
+      "confidence": 1,
+      "warnings": [
+        "unlisted_discount"
+      ]
+    }
+  ]
+}

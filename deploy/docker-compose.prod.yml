@@ -1,0 +1,98 @@
+# Chạy trên VPS:  docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.production up -d --build
+name: soidon
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: soidon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: soidon
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U soidon -d soidon']
+      interval: 5s
+      retries: 10
+    # Không mở cổng ra ngoài.
+
+  api:
+    build: { context: .., target: api }
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://soidon:${POSTGRES_PASSWORD}@postgres:5432/soidon
+      API_PORT: 4000
+      WEB_ORIGIN: https://${SITE_ADDRESS:?}
+      JWT_SECRET: ${JWT_SECRET:?}
+      TOKEN_ENC_KEY: ${TOKEN_ENC_KEY:?}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
+      GOOGLE_REDIRECT_URI: https://${SITE_ADDRESS}/api/auth/google/callback
+      GMAIL_REDIRECT_URI: https://${SITE_ADDRESS}/api/gmail/callback
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))",
+        ]
+      interval: 15s
+      start_period: 60s
+      retries: 5
+
+  web:
+    build:
+      context: ..
+      target: web
+      args:
+        NEXT_PUBLIC_SUPPORT_EMAIL: ${SUPPORT_EMAIL:?}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+    restart: unless-stopped
+    depends_on: [api]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [web, api]
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Sao lưu DB mỗi ngày lúc ~03:00 giờ VN, giữ 14 bản gần nhất trong deploy/backups.
+  backup:
+    image: postgres:16
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    volumes: ['./backups:/backups']
+    entrypoint: ['sh', '-c']
+    command:
+      - |
+        last=''
+        while true; do
+          if [ "$$(date +%H)" = 03 ] && [ "$$(date +%F)" != "$$last" ]; then
+            f=/backups/soidon-$$(date +%Y%m%d).dump
+            if pg_dump -h postgres -U soidon -d soidon -Fc -f "$$f.tmp"; then
+              mv "$$f.tmp" "$$f" && chmod 600 "$$f" && last=$$(date +%F)
+              ls -1t /backups/soidon-*.dump | tail -n +15 | xargs -r rm --
+            fi
+          fi
+          sleep 600
+        done
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

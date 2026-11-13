@@ -1,0 +1,30 @@
+{
+  "parser": "shopee.payment_confirmed.v1",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.payment_confirmed.v1",
+      "eventType": "ORDER_PLACED",
+      "occurredAt": "2026-11-10T14:10:11.000Z",
+      "orderId": "2611100HPCSAW6",
+      "orderDate": "2026-11-10T14:10:07.000Z",
+      "shopName": "grow_official_store",
+      "items": [
+        {
+          "name": "[LIVE] Thùng 48 hộp Sữa nước Abbott Grow Gold hương Vani 110ml (Bao bì thay đổi tùy vào đợt nhập hàng)",
+          "quantity": 2,
+          "unitPrice": 730000,
+          "lineTotal": 1460000,
+          "variant": "Chính hãng"
+        }
+      ],
+      "grossAmount": 1460000,
+      "discountAmount": 374300,
+      "listedDiscountAmount": 374300,
+      "shippingFee": 0,
+      "netAmount": 1085700,
+      "confidence": 1,
+      "warnings": []
+    }
+  ]
+}

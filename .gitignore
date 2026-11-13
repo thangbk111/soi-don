@@ -1,0 +1,19 @@
+node_modules
+dist
+.next
+.turbo
+.env
+.env.local
+*.log
+# Email thật chưa ẩn danh — không bao giờ commit
+.raw-emails/
+packages/parser-fixtures/raw/
+
+# Mẫu email thật do user cung cấp (chứa PII)
+eml-template/
+
+# Deploy: bí mật và bản sao lưu DB trên VPS
+deploy/.env.production
+deploy/backups/
+.DS_Store
+*.tsbuildinfo

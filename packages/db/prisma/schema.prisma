@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  SHOPEE
+  TIKTOK_SHOP
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  REVOKED
+  ERROR
+}
+
+enum TxStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED          // hoàn toàn bộ
+  PARTIALLY_REFUNDED
+}
+
+enum EventType {
+  ORDER_PLACED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  REFUND
+  RETURN_REQUESTED  // yêu cầu trả hàng, chưa có số tiền hoàn
+  UNKNOWN
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
+enum RuleMatch {
+  PRODUCT_KEYWORD
+  SHOP_NAME
+  PRODUCT_NAME // tên sản phẩm đã chuẩn hóa, khớp nguyên tên (email không có mã sản phẩm)
+}
+
+/// Nguồn danh mục của một dòng sản phẩm. null trên dòng = chưa phân loại.
+enum CategorySource {
+  MANUAL    // người dùng chọn cho dòng này
+  USER_RULE // quy tắc ghi nhớ của người dùng
+  RULE      // quy tắc có sẵn (từ khóa)
+  AI
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  googleSub   String   @unique
+  displayName String?
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+
+  connections   EmailConnection[]
+  scanJobs      ScanJob[]
+  processed     ProcessedEmail[]
+  transactions  Transaction[]
+  categoryRules CategoryRule[]
+  auditLogs     AuditLog[]
+}
+
+model EmailConnection {
+  id                    String           @id @default(uuid())
+  userId                String
+  provider              String           @default("gmail")
+  refreshTokenEncrypted String           // AES-256-GCM, base64(iv|tag|ciphertext)
+  scopes                String[]
+  status                ConnectionStatus @default(ACTIVE)
+  lastSyncedAt          DateTime?
+  createdAt             DateTime         @default(now())
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+}
+
+model ScanJob {
+  id            String     @id @default(uuid())
+  userId        String
+  status        ScanStatus @default(QUEUED)
+  rangeFrom     DateTime
+  rangeTo       DateTime
+  totalMessages Int        @default(0)
+  processed     Int        @default(0)
+  parsedOk      Int        @default(0)
+  failed        Int        @default(0)
+  error         String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime   @default(now())
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Chỉ lưu metadata để không xử lý lại email. KHÔNG lưu nội dung.
+model ProcessedEmail {
+  id             String    @id @default(uuid())
+  userId         String
+  gmailMessageId String
+  receivedAt     DateTime
+  templateId     String?   // vd "shopee.order_delivered.v1"
+  parserVersion  String?
+  eventType      EventType @default(UNKNOWN)
+  parsedOk       Boolean
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gmailMessageId])
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  userId         String
+  platform       Platform
+  orderId        String?  // null nếu không trích được → dùng fingerprint
+  fingerprint    String   // hash(date + shop + total + items) để dedupe dự phòng
+  orderDate      DateTime
+  shopName       String?
+  // Tiền: VND nguyên (đồng), không dùng float
+  grossAmount    Int      @default(0) // tổng tiền hàng
+  discountAmount Int      @default(0) // voucher, xu, giảm giá
+  shippingFee    Int      @default(0)
+  netAmount      Int      @default(0) // số tiền thực trả
+  refundAmount   Int      @default(0) // hiển thị riêng, không trộn vào chi tiêu
+  /// Dẫn xuất cho báo cáo danh mục: phần (net − ship) chưa gán được cho dòng sản phẩm nào.
+  unallocatedAmount Int   @default(0)
+  status         TxStatus @default(PENDING)
+  confidence     Float    @default(1)  // 0..1
+  needsReview    Boolean  @default(false)
+  reviewReason   String?
+  userConfirmed  Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  TransactionItem[]
+  events OrderEvent[]
+
+  @@unique([userId, platform, orderId])
+  @@unique([userId, platform, fingerprint])
+  @@index([userId, orderDate])
+}
+
+model TransactionItem {
+  id            String      @id @default(uuid())
+  transactionId String
+  productName   String
+  variant       String?
+  quantity      Int         @default(1)
+  unitPrice     Int
+  lineTotal     Int
+  /// Dẫn xuất: phần tiền hàng sau giảm của đơn gán cho dòng này. null = không phân bổ được.
+  allocatedAmount Int?
+  /// productKey(productName), dùng để khớp quy tắc ghi nhớ.
+  productKey    String?
+  categoryId    String?
+  categorySource CategorySource?
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  category      Category?   @relation(fields: [categoryId], references: [id])
+
+  @@index([transactionId])
+  @@index([productKey])
+}
+
+/// Mỗi email đã parse thành công tạo một event, gắn vào Transaction.
+model OrderEvent {
+  id             String      @id @default(uuid())
+  transactionId  String
+  gmailMessageId String
+  type           EventType
+  occurredAt     DateTime
+  amount         Int?        // số tiền nêu trong email (vd số tiền hoàn)
+  transaction    Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@unique([transactionId, gmailMessageId])
+}
+
+model Category {
+  id       String     @id @default(uuid())
+  slug     String     @unique   // "thoi-trang", "my-pham"...
+  name     String
+  parentId String?
+  sortOrder Int       @default(0)
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  items    TransactionItem[]
+  rules    CategoryRule[]
+}
+
+/// Quy tắc người dùng tạo khi sửa danh mục → áp dụng cho lần sau.
+model CategoryRule {
+  id         String    @id @default(uuid())
+  userId     String
+  match      RuleMatch
+  pattern    String    // đã normalize: lowercase, bỏ dấu
+  label      String?   // tên gốc để hiển thị trong cài đặt
+  categoryId String
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, match, pattern])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String   // "gmail.connected", "scan.started", "data.deleted"...
+  meta      Json?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

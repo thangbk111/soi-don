@@ -1,0 +1,31 @@
+# SITE_ADDRESS: tên miền công khai, vd "soidon.duckdns.org". Caddy tự xin chứng chỉ HTTPS (Let's Encrypt).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# Web và API chung một origin → cookie phiên SameSite=Lax chạy với mọi tên miền.
+	handle_path /api/* {
+		reverse_proxy api:4000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		-Server
+	}
+
+	# Không ghi query string (có thể chứa mã OAuth) vào log truy cập.
+	log {
+		format filter {
+			request>uri query {
+				delete code
+				delete state
+			}
+		}
+	}
+}

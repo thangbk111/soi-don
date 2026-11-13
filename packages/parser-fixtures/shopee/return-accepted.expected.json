@@ -1,0 +1,17 @@
+{
+  "parser": "shopee.return.v0",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.return.v0",
+      "eventType": "RETURN_REQUESTED",
+      "occurredAt": "2026-05-27T07:35:11.000Z",
+      "externalRef": "2605270GFC6A5MM",
+      "items": [],
+      "confidence": 0.5,
+      "warnings": [
+        "ref_not_order_id"
+      ]
+    }
+  ]
+}

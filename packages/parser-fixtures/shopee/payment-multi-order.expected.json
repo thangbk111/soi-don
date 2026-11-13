@@ -1,0 +1,96 @@
+{
+  "parser": "shopee.payment_confirmed.v1",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.payment_confirmed.v1",
+      "eventType": "ORDER_PLACED",
+      "occurredAt": "2026-11-10T14:07:55.000Z",
+      "orderId": "2611100HJB50Q0",
+      "orderDate": "2026-11-10T14:07:49.000Z",
+      "shopName": "larocheposay_officialstore",
+      "items": [
+        {
+          "name": "Nước tẩy trang làm sạch sâu cho da nhạy cảm La Roche-Posay Micellar Water Sensitive Skin 400ml",
+          "quantity": 1,
+          "unitPrice": 509000,
+          "lineTotal": 509000
+        }
+      ],
+      "grossAmount": 509000,
+      "discountAmount": 150367,
+      "listedDiscountAmount": 136667,
+      "shippingFee": 0,
+      "netAmount": 358633,
+      "confidence": 1,
+      "warnings": [
+        "unlisted_discount"
+      ]
+    },
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.payment_confirmed.v1",
+      "eventType": "ORDER_PLACED",
+      "occurredAt": "2026-11-10T14:07:55.000Z",
+      "orderId": "2611100HJB50Q1",
+      "orderDate": "2026-11-10T14:07:49.000Z",
+      "shopName": "cerave_officialstore",
+      "items": [
+        {
+          "name": "Sữa rửa mặt làm sạch da, loại bỏ dầu thừa và tẩy tế bào chết dịu nhẹ không gây khô da CeraVe SA Smoothing Cleanser 473ML",
+          "quantity": 1,
+          "unitPrice": 501000,
+          "lineTotal": 501000
+        },
+        {
+          "name": "[HB GIFT HÀNG TẶNG KHÔNG BÁN] Sữa rửa mặt giúp làm sạch sâu dành cho da thường và dầu Cerave Foaming Facial Cleanse 30ML",
+          "quantity": 1,
+          "unitPrice": 0,
+          "lineTotal": 0
+        },
+        {
+          "name": "[HB GIFT HÀNG TẶNG KHÔNG BÁN] Sữa rửa mặt giúp làm sạch sâu dành cho da thường và da khô Cerave Hydrating Cleanser 30ML",
+          "quantity": 1,
+          "unitPrice": 0,
+          "lineTotal": 0
+        }
+      ],
+      "grossAmount": 501000,
+      "discountAmount": 129431,
+      "listedDiscountAmount": 115231,
+      "shippingFee": 0,
+      "netAmount": 371569,
+      "confidence": 1,
+      "warnings": [
+        "unlisted_discount"
+      ]
+    },
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.payment_confirmed.v1",
+      "eventType": "ORDER_PLACED",
+      "occurredAt": "2026-11-10T14:07:55.000Z",
+      "orderId": "2611100HJB50Q2",
+      "orderDate": "2026-11-10T14:07:49.000Z",
+      "shopName": "pghomecare_officialstore",
+      "items": [
+        {
+          "name": "[LS] Nước Giặt ARIEL Chuyên Gia Cửa Trên Ngăn Lem Màu Nhiều Mùi Hương Túi 4.1KG",
+          "quantity": 1,
+          "unitPrice": 328000,
+          "lineTotal": 328000,
+          "variant": "C.TrênNắng Sớm 4.1KG"
+        }
+      ],
+      "grossAmount": 328000,
+      "discountAmount": 84639,
+      "listedDiscountAmount": 75439,
+      "shippingFee": 0,
+      "netAmount": 243361,
+      "confidence": 1,
+      "warnings": [
+        "unlisted_discount"
+      ]
+    }
+  ]
+}

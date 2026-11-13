@@ -1,0 +1,21 @@
+# railway up: những gì KHÔNG được tải lên Railway (giống .dockerignore).
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/*.tsbuildinfo
+**/*.log
+.git
+.DS_Store
+
+# Bí mật và email thật — không bao giờ được vào image
+**/.env
+**/.env.*
+!.env.example
+eml-template
+.raw-emails
+packages/parser-fixtures/raw
+
+# Không cần để build
+mvp-feedbacks
+deploy/backups

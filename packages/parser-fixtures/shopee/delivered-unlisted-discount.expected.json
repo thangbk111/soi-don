@@ -1,0 +1,31 @@
+{
+  "parser": "shopee.order_delivered.v1",
+  "events": [
+    {
+      "platform": "SHOPEE",
+      "templateId": "shopee.order_delivered.v1",
+      "eventType": "ORDER_DELIVERED",
+      "occurredAt": "2026-11-10T17:00:00.000Z",
+      "orderId": "2611100HJB50Q0",
+      "orderDate": "2026-11-10T14:07:49.000Z",
+      "shopName": "larocheposay_officialstore",
+      "items": [
+        {
+          "name": "Nước tẩy trang làm sạch sâu cho da nhạy cảm La Roche-Posay Micellar Water Sensitive Skin 400ml",
+          "quantity": 1,
+          "unitPrice": 509000,
+          "lineTotal": 509000
+        }
+      ],
+      "grossAmount": 509000,
+      "discountAmount": 150367,
+      "listedDiscountAmount": 136667,
+      "shippingFee": 0,
+      "netAmount": 358633,
+      "confidence": 1,
+      "warnings": [
+        "unlisted_discount"
+      ]
+    }
+  ]
+}

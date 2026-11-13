@@ -1,0 +1,21 @@
+{
+  "name": "soi-don",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "db:generate": "pnpm --filter @soi-don/db generate",
+    "db:migrate": "pnpm --filter @soi-don/db migrate",
+    "db:seed": "pnpm --filter @soi-don/db seed",
+    "db:studio": "pnpm --filter @soi-don/db studio"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.3"
+  }
+}
